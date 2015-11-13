@@ -36,8 +36,18 @@ public class MapPolygonCollection implements Serializable {
         this.bottomRightViewRange = bottomRightViewRange;
     }
 
+    public float getRotation() {
+        return this.rotation;
+    }
+
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
+    }
+
     private PolygonPoint topLeftViewRange;
     private PolygonPoint bottomRightViewRange;
+
+    private float rotation;
 
     public PolygonPoint getUserPosition() {
         return userPosition;
