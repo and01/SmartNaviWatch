@@ -22,9 +22,12 @@ public class MapRenderer {
         // Fill in map background
         Paint backgroundPaint = new Paint();
         backgroundPaint.setColor(Color.rgb(233, 229, 220));
-        canvas.drawRect(0,0,width, height, backgroundPaint);
+        canvas.drawRect(0, 0, width, height, backgroundPaint);
 
         if(map == null || map.getBottomRightViewRange() == null || map.getTopLeftViewRange() == null) return bmp;
+
+        //rotate the drawing according to the direction the user is moving
+        canvas.rotate(map.getRotation(),width/2,height/2);
 
         // Determine uniform scaling based on smaller view size
         float deltaX = map.getBottomRightViewRange().x - map.getTopLeftViewRange().x ;
