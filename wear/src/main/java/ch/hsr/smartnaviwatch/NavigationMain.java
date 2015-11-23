@@ -44,6 +44,9 @@ public class NavigationMain extends Activity implements IMessageListener {
     private GridLayout loadingInfo;
     private ImageView locationMarkerSmall;
     private ImageView locationMarkerBig;
+    private ImageView locationMarkerRotate;
+    private ImageView locationMarkerBigRotate;
+    private float directionToNorth;
 
     @Override
     public void messageReceived(final NavigationMessage message) {
@@ -58,20 +61,15 @@ public class NavigationMain extends Activity implements IMessageListener {
                             }
 
                             HashMap<String, Object> values = (HashMap<String, Object>) message.getPayload();
-                            setBackgroundMap((MapPolygonCollection) values.get(MessageDataKeys.MapPolygonData));
+                            MapPolygonCollection mapData = (MapPolygonCollection) values.get(MessageDataKeys.MapPolygonData);
+                            setBackgroundMap(mapData);
                             setDirectionImage((String) values.get(MessageDataKeys.TurnType));
                             directionMessage.setText((String) values.get(MessageDataKeys.RoutingDescription));
                             leftTime.setText(intToStringTimeFormat((int) values.get(MessageDataKeys.RouteLeftTime)));
                             leftTime.setVisibility(View.VISIBLE);
 
                             float accuracy = (float)values.get(MessageDataKeys.LocationAccuracy);
-                            if (accuracy <= 20) {
-                                locationMarkerSmall.setVisibility(View.VISIBLE);
-                                locationMarkerBig.setVisibility(View.INVISIBLE);
-                            } else {
-                                locationMarkerSmall.setVisibility(View.INVISIBLE);
-                                locationMarkerBig.setVisibility(View.VISIBLE);
-                            }
+                            showLocationMarker(accuracy, mapData.getRotation());
 
                             Vibrate(new long[]{0, 300, 50, 300});
                         }
@@ -87,20 +85,15 @@ public class NavigationMain extends Activity implements IMessageListener {
                             }
 
                             HashMap<String, Object> values = (HashMap<String, Object>) message.getPayload();
-                            setBackgroundMap((MapPolygonCollection) values.get(MessageDataKeys.MapPolygonData));
+                            MapPolygonCollection mapData = (MapPolygonCollection) values.get(MessageDataKeys.MapPolygonData);
+                            setBackgroundMap(mapData);
                             setDirectionImage((String) values.get(MessageDataKeys.TurnType));
                             directionMessage.setText((String) values.get(MessageDataKeys.RoutingDescription));
                             leftTime.setText(intToStringTimeFormat ((int) values.get(MessageDataKeys.RouteLeftTime)));
                             leftTime.setVisibility(View.VISIBLE);
 
                             float accuracy = (float)values.get(MessageDataKeys.LocationAccuracy);
-                            if (accuracy <= 20) {
-                                locationMarkerSmall.setVisibility(View.VISIBLE);
-                                locationMarkerBig.setVisibility(View.INVISIBLE);
-                            } else {
-                                locationMarkerSmall.setVisibility(View.INVISIBLE);
-                                locationMarkerBig.setVisibility(View.VISIBLE);
-                            }
+                            showLocationMarker(accuracy, mapData.getRotation());
 
                             Vibrate(new long[]{0, 300});
                         }
@@ -117,17 +110,13 @@ public class NavigationMain extends Activity implements IMessageListener {
 
                             HashMap<String, Object> values = (HashMap<String, Object>) message.getPayload();
                             currentPosition.setText((String) values.get(MessageDataKeys.LocationName));
-                            setBackgroundMap((MapPolygonCollection) values.get(MessageDataKeys.MapPolygonData));
+                            MapPolygonCollection mapData = (MapPolygonCollection) values.get(MessageDataKeys.MapPolygonData);
+                            setBackgroundMap(mapData);
                             leftTime.setVisibility(View.INVISIBLE);
 
                             float accuracy = (float)values.get(MessageDataKeys.LocationAccuracy);
-                            if (accuracy <= 20) {
-                                locationMarkerSmall.setVisibility(View.VISIBLE);
-                                locationMarkerBig.setVisibility(View.INVISIBLE);
-                            } else {
-                                locationMarkerSmall.setVisibility(View.INVISIBLE);
-                                locationMarkerBig.setVisibility(View.VISIBLE);
-                            }
+                            showLocationMarker(accuracy, mapData.getRotation());
+
                         }
                     });
                     break;
@@ -177,6 +166,9 @@ public class NavigationMain extends Activity implements IMessageListener {
                 leftTime = (TextView) stub.findViewById(R.id.leftTime);
                 locationMarkerSmall = (ImageView)stub.findViewById(R.id.locationMarkerSmall);
                 locationMarkerBig = (ImageView)stub.findViewById(R.id.locationMarkerBig);
+                locationMarkerRotate = (ImageView)stub.findViewById(R.id.locationMarkerRotate);
+                locationMarkerBigRotate = (ImageView)stub.findViewById(R.id.locationMarkerBigRotate);
+
                 loadingInfo = (GridLayout)stub.findViewById(R.id.loadingInfo);
 
                 loadingInfo.setVisibility(View.VISIBLE);
@@ -227,6 +219,18 @@ public class NavigationMain extends Activity implements IMessageListener {
         Point size = new Point();
         display.getSize(size);
         viewFlipper.setBackground(new BitmapDrawable(getResources(), MapRenderer.render(mapData, size.x, size.y)));
+    }
+
+    public void showLocationMarker(float accuracy, float rotation) {
+        if (accuracy <= 20) {
+            locationMarkerRotate.setVisibility(View.VISIBLE);
+            locationMarkerRotate.setRotation(rotation);
+            locationMarkerBigRotate.setVisibility(View.INVISIBLE);
+        } else {
+            locationMarkerBigRotate.setVisibility(View.VISIBLE);
+            locationMarkerBigRotate.setRotation(rotation);
+            locationMarkerRotate.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void setDirectionImage(String directionType) {
